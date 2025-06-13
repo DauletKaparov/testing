@@ -1,64 +1,107 @@
-# NewsQuant MVP
+# NewsQuant – Traffic-Boost News Analyzer 🚀
 
-A web-based platform for analyzing news articles and their potential market impact on cryptocurrencies/tickers.
+[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://www.python.org/) [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green?logo=fastapi)](https://fastapi.tiangolo.com/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## MVP Technical Roadmap
+A lightweight web application that automatically collects recent business news, detects *traffic-boost* signals (management changes, tech investments, LTOs, partnerships, social buzz, etc.), and ranks articles by relevance and predicted stock impact.
 
-### Phase 1: Core Infrastructure (Week 1-2)
-- [ ] Set up FastAPI backend with basic endpoints
-- [ ] Implement basic news ingestion system (using RSS feeds)
-- [ ] Set up Elasticsearch for storing news articles
-- [ ] Create basic data models for articles and scores
+Created as an end-to-end **MVP** to showcase product sense, backend chops, and pragmatic NLP on a shoestring – no paid APIs, no keys, just Python ♥.
 
-### Phase 2: Basic Analysis (Week 3-4)
-- [ ] Implement simple sentiment analysis using pre-trained model
-- [ ] Create basic entity recognition for tickers
-- [ ] Develop initial scoring system
-- [ ] Add basic caching mechanism
+---
 
-### Phase 3: User Interface (Week 5-6)
-- [ ] Create simple React frontend
-- [ ] Implement article feed with basic filtering
-- [ ] Add score visualization
-- [ ] Add export functionality
+## ✨ Key Features
 
-### Phase 4: Testing & Optimization (Week 7)
-- [ ] Set up unit tests
-- [ ] Performance optimization
-- [ ] Basic error handling
-- [ ] Documentation
+| ✨ | Feature |
+|---|---|
+| 🔍 | **RSS Crawler** (Google News) with industry filter & time window (day / week / month) |
+| 🧠 | **NLP Pipeline** – sentiment (VADER), ticker extraction (regex), traffic-boost keyword detection |
+| 🤖 | **LLM Summaries** – *t5-small* generates a concise “Brief” + potential impact line |
+| 🏅 | **Relevancy Score** (0-10) combines traffic-boost signals, sentiment strength, and ticker presence |
+| ⚡ | **FastAPI** backend, single-file static frontend (vanilla JS) – no build step |
+| 🖱 | **Progressive Reveal UI** – titles & scores load instantly, click **More** to view details |
 
-## Project Structure
+---
+
+## 📸 Demo
+
+<p align="center">
+  <img src="docs/screenshot.gif" width="700" alt="NewsQuant demo GIF">
+</p>
+
+---
+
+## 🏗️ Architecture
+
 ```
-newsquant/
-├── app/
-│   ├── api/          # FastAPI routes
-│   ├── models/       # Data models
-│   ├── services/     # Business logic
-│   └── utils/        # Utility functions
-├── frontend/         # React frontend
-└── tests/           # Test files
+┌────────────┐   RSS (HTTP)   ┌────────────────┐
+│ news_fetch │──────────────▶│  feedparser     │
+└────────────┘                └────────────────┘
+       │                                    │
+       ▼                                    ▼
+┌────────────┐        NLP         ┌────────────────┐
+│ summarizer │◀──────────────────│  news_analyzer  │
+└────────────┘                    └────────────────┘
+       │                                    │
+       ▼                                    ▼
+               FastAPI  →  JSON  →  Vanilla JS UI
 ```
 
-## Technology Stack
-- Backend: FastAPI, Python
-- NLP: Transformers, PyTorch
-- Database: Elasticsearch
-- Frontend: React
-- API: REST
+---
 
-## Getting Started
+## 🚀 Quick Start
 
-1. Install dependencies:
 ```bash
-pip install -r requirements.txt
+# 1. Clone
+$ git clone https://github.com/<you>/NewsQuant.git && cd NewsQuant
+
+# 2. Install deps (CPU-only)
+$ pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+
+# 3. Run
+$ uvicorn app.main:app --reload
+
+# 4. Open
+Visit http://127.0.0.1:8000 – select industry & period, click “Run Scan”.
 ```
 
-2. Run the application:
-```bash
-uvicorn app.main:app --reload
+> 💡 **Tip:** First launch downloads the `t5-small` model (~240 MB). Subsequent runs start instantly.
+
+---
+
+## 📝 Project Structure
+
+```
+NewsQuant/
+├── app/                 # FastAPI backend
+│   ├── api/             # Routes: /scan, /articles
+│   ├── models/          # Pydantic schemas
+│   ├── services/        # Crawler, NLP, summarizer
+│   └── static/          # index.html + main.js
+├── tests/               # (placeholder) PyTest suites
+├── requirements.txt
+└── README.md
 ```
 
-## Contributing
+---
 
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+## 🛠 Tech Stack
+
+* Python 3.12, FastAPI, Uvicorn ⎯ backend & static hosting
+* `feedparser` – RSS ingestion (no API keys!)
+* NLP: **VADER** sentiment, regex ticker extraction, keyword traffic-boost detector
+* Summaries: `t5-small` via 🤗 Transformers (CPU)
+* Frontend: plain **HTML + ES6** – minimal & deploy-anywhere
+
+---
+
+## 💡 Future Work
+
+* Better ticker extraction (spaCy NER)
+* Vector DB or Elasticsearch for historical search
+* Dockerfile & GitHub Actions CI
+* Unit tests & coverage badge
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).

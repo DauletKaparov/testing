@@ -1,5 +1,6 @@
 from typing import List, Dict
 from transformers import pipeline, Pipeline
+import re
 
 from .news_analyzer import NewsAnalyzer
 from .news_fetcher import fetch_recent_news
@@ -51,6 +52,17 @@ def predict_from_sentiment(sent: float) -> str:
     return "Bullish" if sent > 0 else "Bearish"
 
 
+# Helpers
+_TAG_RE = re.compile(r"<[^>]+>")
+_URL_RE = re.compile(r"https?://\S+")
+
+
+def _clean_text(raw: str) -> str:
+    text = _TAG_RE.sub(" ", raw)
+    text = _URL_RE.sub(" ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def _score_article(sent: float, categories: List[str], tickers: List[str]) -> float:
     """Very simple heuristic 0-10 score"""
     score = 0.0
@@ -65,20 +77,22 @@ def summarize_article(article: ArticleCreate) -> ArticleSummary:
     tickers = analyzer.extract_tickers(article.content)
     categories = analyzer.detect_traffic_boosts(article.content)
 
+    cleaned_content = _clean_text(article.content)
+
     # Generate LLM-based brief summary (shock + impact)
     summarizer = _get_summarizer()
     if summarizer:
         try:
             llm_summary = summarizer(
-                article.title + "\n" + article.content,
+                article.title + ". " + cleaned_content,
                 max_length=40,
                 min_length=15,
                 do_sample=False,
             )[0]["summary_text"].strip()
         except Exception:
-            llm_summary = article.content[:200]
+            llm_summary = cleaned_content[:200]
     else:
-        llm_summary = article.content[:200]
+        llm_summary = cleaned_content[:200]
 
     impact_part = (
         f"Potential impact: {'; '.join(f'{t} {predict_from_sentiment(sent)}' for t in tickers)}"
