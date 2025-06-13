@@ -28,6 +28,15 @@ def predict_from_sentiment(sent: float) -> str:
     return "Bullish" if sent > 0 else "Bearish"
 
 
+def _score_article(sent: float, categories: List[str], tickers: List[str]) -> float:
+    """Very simple heuristic 0-10 score"""
+    score = 0.0
+    score += len(categories) * 3  # importance of traffic boost signals
+    score += 1.0 if tickers else 0.0  # equity relevance
+    score += min(abs(sent) * 2, 2.0)  # sentiment magnitude up to 2 pts
+    return min(score, 10.0)
+
+
 def summarize_article(article: ArticleCreate) -> ArticleSummary:
     sent = analyzer.analyze_sentiment(article.content)
     tickers = analyzer.extract_tickers(article.content)
@@ -38,6 +47,8 @@ def summarize_article(article: ArticleCreate) -> ArticleSummary:
 
     prediction = {t: predict_from_sentiment(sent) for t in tickers} if tickers else {}
 
+    score = _score_article(sent, categories, tickers)
+
     return ArticleSummary(
         title=article.title,
         brief=brief,
@@ -45,9 +56,11 @@ def summarize_article(article: ArticleCreate) -> ArticleSummary:
         tickers=tickers,
         prediction=prediction,
         url=article.url,
+        score=score,
     )
 
 
-def scan_period(period: str) -> List[ArticleSummary]:
-    raw_articles = fetch_recent_news(period)
-    return [summarize_article(a) for a in raw_articles]
+def scan_period(period: str, industry: str) -> List[ArticleSummary]:
+    raw_articles = fetch_recent_news(period, industry)
+    summaries = [summarize_article(a) for a in raw_articles]
+    return sorted(summaries, key=lambda s: s.score, reverse=True)

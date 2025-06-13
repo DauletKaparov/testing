@@ -29,4 +29,5 @@ class ArticleSummary(BaseModel):
     why_matters: str
     tickers: List[str]
     prediction: Dict[str, str]
-    url: str = ""
+    score: float
+    url: Optional[str]

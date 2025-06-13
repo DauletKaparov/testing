@@ -1,13 +1,15 @@
 const scanBtn = document.getElementById("scan-btn");
 const periodSelect = document.getElementById("period");
+const industrySelect = document.getElementById("industry");
 const resultsDiv = document.getElementById("results");
 
 scanBtn.addEventListener("click", async () => {
   const period = periodSelect.value;
+  const industry = industrySelect.value;
   resultsDiv.textContent = "Scanning...";
 
   try {
-    const res = await fetch(`/scan?period=${period}`);
+    const res = await fetch(`/scan?period=${period}&industry=${industry}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (data.length === 0) {
@@ -21,6 +23,7 @@ scanBtn.addEventListener("click", async () => {
           <h3><a href="${item.url || '#'}" target="_blank">${item.title}</a></h3>
           <p><strong>Brief:</strong> ${item.brief}</p>
           <p><strong>Why it matters:</strong> ${item.why_matters}</p>
+          <p><strong>Relevancy Score:</strong> ${item.score.toFixed(1)}/10</p>
           <p><strong>Tickers:</strong> ${item.tickers.join(', ') || 'None'}</p>
           <p><strong>Prediction:</strong> ${Object.entries(item.prediction)
             .map(([t, p]) => `${t}: ${p}`)

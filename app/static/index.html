@@ -45,7 +45,13 @@
   <body>
     <h1>NewsQuant Analyzer MVP</h1>
     <div>
-      <label for="period">Select period:</label>
+      <label for="industry">Industry:</label>
+      <select id="industry">
+        <option value="fnb">F&B</option>
+        <option value="tech">Tech</option>
+        <option value="all" selected>All</option>
+      </select>
+      <label for="period" style="margin-left:1rem;">Select period:</label>
       <select id="period">
         <option value="day">Past Day</option>
         <option value="week" selected>Past Week</option>
