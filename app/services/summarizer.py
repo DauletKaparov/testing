@@ -1,4 +1,5 @@
 from typing import List, Dict
+from transformers import pipeline, Pipeline
 
 from .news_analyzer import NewsAnalyzer
 from .news_fetcher import fetch_recent_news
@@ -16,6 +17,28 @@ CATEGORY_EXPLANATIONS = {
     "social_media_engagement": "Strong social buzz can translate into brand awareness and incremental visits.",
     "employee_engagement": "Happy employees generally deliver better service, supporting customer loyalty.",
 }
+
+# Summarizer will be loaded lazily to avoid long startup.
+_summarizer: Pipeline | None = None
+
+
+def _get_summarizer() -> Pipeline | None:
+    global _summarizer
+    if _summarizer is not None:
+        return _summarizer
+
+    try:
+        # use much smaller t5-small model (~240MB)
+        _summarizer = pipeline(
+            "summarization",
+            model="t5-small",
+            tokenizer="t5-small",
+            framework="pt",
+            device=-1,
+        )
+    except Exception:
+        _summarizer = None
+    return _summarizer
 
 
 def build_why_matters(categories: List[str]) -> str:
@@ -42,7 +65,28 @@ def summarize_article(article: ArticleCreate) -> ArticleSummary:
     tickers = analyzer.extract_tickers(article.content)
     categories = analyzer.detect_traffic_boosts(article.content)
 
-    brief = (article.content[:200] + "…") if len(article.content) > 200 else article.content
+    # Generate LLM-based brief summary (shock + impact)
+    summarizer = _get_summarizer()
+    if summarizer:
+        try:
+            llm_summary = summarizer(
+                article.title + "\n" + article.content,
+                max_length=40,
+                min_length=15,
+                do_sample=False,
+            )[0]["summary_text"].strip()
+        except Exception:
+            llm_summary = article.content[:200]
+    else:
+        llm_summary = article.content[:200]
+
+    impact_part = (
+        f"Potential impact: {'; '.join(f'{t} {predict_from_sentiment(sent)}' for t in tickers)}"
+        if tickers
+        else "Potential impact: General industry sentiment"
+    )
+
+    brief = f"{llm_summary} {impact_part}"
     why = build_why_matters(categories)
 
     prediction = {t: predict_from_sentiment(sent) for t in tickers} if tickers else {}
