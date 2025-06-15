@@ -24,7 +24,7 @@ Created as an end-to-end **MVP** to showcase product sense, backend chops, and p
 ## 🖥️ Application Preview
 
 ### Main Page
-![Main Page](data/images/dashboard.png)
+![Main Page](data/images/dashboard.jpeg)
 
 
 ## 🏗️ Architecture
