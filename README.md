@@ -59,7 +59,7 @@ Created as an end-to-end **MVP** to showcase product sense, backend chops, and p
 
 ```bash
 # 1. Clone
-$ git clone https://github.com/<you>/NewsQuant.git && cd NewsQuant
+$ git clone https://github.com/DauletKaparov/NewsQuant.git && cd NewsQuant
 
 # 2. Install deps (CPU-only)
 $ pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
