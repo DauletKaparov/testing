@@ -21,21 +21,11 @@ Created as an end-to-end **MVP** to showcase product sense, backend chops, and p
 
 ---
 
-## 📸 Demo
+## 🖥️ Application Preview
 
-| | |
-|---|---|
-| 🔗 **Live Preview** | Deployed on Netlify – [newsquant.netlify.app](https://newsquant.netlify.app) |
-| 🎥 **Video Walk-through** | [Loom recording →](https://loom.com/share/your-demo-link) (2 min) |
-| 📷 **GIF Snapshot** | _docs/demo.gif_ (see below) |
+### Main Page
+![Main Page](data/images/dashboard.png)
 
-<p align="center">
-  <img src="docs/demo.gif" width="700" alt="NewsQuant demo gif">
-</p>
-
-> Want to record your own? Run the app locally and capture with [Peek](https://github.com/phw/peek) / [Screen Studio](https://screen.studio/) and overwrite `docs/demo.gif`.
-
----
 
 ## 🏗️ Architecture
 
