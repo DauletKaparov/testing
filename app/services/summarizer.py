@@ -23,7 +23,12 @@ CATEGORY_EXPLANATIONS = {
 _summarizer: Pipeline | None = None
 
 
+import os
+
 def _get_summarizer() -> Pipeline | None:
+    # Allow disabling LLM summarization (useful in constrained prod env)
+    if os.getenv("DISABLE_LLM", "0") == "1":
+        return None
     global _summarizer
     if _summarizer is not None:
         return _summarizer
