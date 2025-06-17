@@ -59,7 +59,13 @@ def fetch_recent_news(period: str, industry: str) -> List[ArticleCreate]:
 
     feeds = FEED_CATEGORIES.get(industry, FEED_CATEGORIES["all"])
     for feed_url in feeds:
-        feed = feedparser.parse(feed_url)
+        try:
+            feed = feedparser.parse(feed_url)
+        except Exception as e:
+            # Log the error and skip feeds that fail to download/parse
+            print(f"Error fetching feed {feed_url}: {str(e)}")
+            continue
+
         for entry in feed.entries:
             published = None
             if hasattr(entry, "published_parsed") and entry.published_parsed:
