@@ -1,6 +1,9 @@
-from typing import List, Dict
-from transformers import pipeline, Pipeline
+from typing import List, Dict, TYPE_CHECKING, Any
 import re
+
+# Heavy NLP libraries are expensive to import. We only want them when LLM summarization is enabled.
+if TYPE_CHECKING:  # pragma: no cover
+    from transformers import Pipeline  # type: ignore
 
 from .news_analyzer import NewsAnalyzer
 from .news_fetcher import fetch_recent_news
@@ -20,7 +23,7 @@ CATEGORY_EXPLANATIONS = {
 }
 
 # Summarizer will be loaded lazily to avoid long startup.
-_summarizer: Pipeline | None = None
+_summarizer: "object | None" = None  # lazily initialised
 
 
 import os
@@ -34,6 +37,8 @@ def _get_summarizer() -> Pipeline | None:
         return _summarizer
 
     try:
+        # Import inside the function to avoid loading heavy libs unless needed
+        from transformers import pipeline  # type: ignore
         # use much smaller t5-small model (~240MB)
         _summarizer = pipeline(
             "summarization",
