@@ -28,7 +28,7 @@ _summarizer: "object | None" = None  # lazily initialised
 
 import os
 
-def _get_summarizer() -> Pipeline | None:
+def _get_summarizer() -> object | None:
     # Allow disabling LLM summarization (useful in constrained prod env)
     if os.getenv("DISABLE_LLM", "0") == "1":
         return None
