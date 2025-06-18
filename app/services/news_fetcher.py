@@ -8,12 +8,18 @@ from ..models.article import ArticleCreate
 # Free RSS feeds related to restaurants / business / QSR
 FEED_CATEGORIES = {
     "fnb": [
+        # General F&B news
         "https://news.google.com/rss/search?q=restaurant+OR+%22fast+food%22&hl=en-US&gl=US&ceid=US:en",
         "https://news.google.com/rss/search?q=coffee+chain+OR+cafe&hl=en-US&gl=US&ceid=US:en",
+        # Stock-specific queries for major publicly traded chains
+        "https://news.google.com/rss/search?q=MCD+OR+SBUX+OR+CMG+OR+DPZ+OR+YUM+stock&hl=en-US&gl=US&ceid=US:en",
     ],
     "tech": [
+        # General tech investing news
         "https://news.google.com/rss/search?q=technology+company+investment&hl=en-US&gl=US&ceid=US:en",
         "https://news.google.com/rss/search?q=software+saas&hl=en-US&gl=US&ceid=US:en",
+        # Stock-specific queries for big tech tickers
+        "https://news.google.com/rss/search?q=TSLA+OR+AAPL+OR+MSFT+OR+AMZN+OR+GOOGL+OR+NVDA+stock&hl=en-US&gl=US&ceid=US:en",
     ],
     "all": [
         "https://news.google.com/rss/search?q=business&hl=en-US&gl=US&ceid=US:en",
@@ -22,6 +28,7 @@ FEED_CATEGORIES = {
 
 INDUSTRY_KEYWORDS = {
     "fnb": [
+        # Generic terms
         "restaurant",
         "burger",
         "pizza",
@@ -30,12 +37,21 @@ INDUSTRY_KEYWORDS = {
         "chain",
         "dining",
         "menu",
+        # Major publicly-traded restaurant brands
+        "mcdonald", "mcdonald's", "mcd", "burger king", "restaurant brands",
+        "kfc", "taco bell", "yum brands", "chipotle", "cmg", "domino's", "dpz",
+        "starbucks", "sbux", "wendy's", "wendys", "dnkn", "dunkin",
     ],
     "tech": [
+        # Generic tech terms
         "software",
         "ai",
         "cloud",
         "saas",
+        # Big tech company names / tickers
+        "apple", "aapl", "tesla", "tsla", "microsoft", "msft", "amazon", "amzn",
+        "google", "alphabet", "googl", "meta", "facebook", "meta platforms",
+        "nvidia", "nvda", "netflix", "nflx", "intel", "intc",
     ],
 }
 

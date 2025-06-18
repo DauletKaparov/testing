@@ -48,8 +48,15 @@ def build_why_matters(categories: List[str]) -> str:
     return "; ".join(CATEGORY_EXPLANATIONS.get(cat, cat) for cat in categories)
 
 
-def predict_from_sentiment(sent: float) -> str:
-    return "Bullish" if sent > 0 else "Bearish"
+# Neutral threshold to reduce noise
+_NEUTRAL_THRESHOLD = 0.3
+
+def predict_from_sentiment(sent: float) -> str | None:
+    if sent > _NEUTRAL_THRESHOLD:
+        return "Bullish"
+    if sent < -_NEUTRAL_THRESHOLD:
+        return "Bearish"
+    return None
 
 
 # Helpers
@@ -94,16 +101,19 @@ def summarize_article(article: ArticleCreate) -> ArticleSummary:
     else:
         llm_summary = cleaned_content[:200]
 
-    impact_part = (
-        f"Potential impact: {'; '.join(f'{t} {predict_from_sentiment(sent)}' for t in tickers)}"
-        if tickers
-        else "Potential impact: General industry sentiment"
-    )
+    prediction: Dict[str, str] = {
+        t: pred for t in tickers if (pred := predict_from_sentiment(sent))
+    } if tickers else {}
+
+    if tickers and prediction:
+        impact_part = "Potential impact: " + "; ".join(f"{t} {p}" for t, p in prediction.items())
+    elif tickers:
+        impact_part = "Potential impact: Equity relevance (sentiment unclear)"
+    else:
+        impact_part = "Potential impact: General industry sentiment"
 
     brief = f"{llm_summary} {impact_part}"
     why = build_why_matters(categories)
-
-    prediction = {t: predict_from_sentiment(sent) for t in tickers} if tickers else {}
 
     score = _score_article(sent, categories, tickers)
 

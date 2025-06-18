@@ -1,5 +1,6 @@
 from typing import List
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import re
 
 # Keywords for identifying traffic boost categories
 TRAFFIC_BOOST_KEYWORDS = {
@@ -38,14 +39,59 @@ class NewsAnalyzer:
         return self._senti.polarity_scores(text)["compound"]
     
     def extract_tickers(self, text: str) -> List[str]:
-        """Basic ticker extraction - this will be improved later"""
-        # Simple pattern matching for now
-        tickers = []
-        words = text.split()
-        for word in words:
-            if word.isupper() and len(word) <= 5:
-                tickers.append(word)
-        return list(set(tickers))
+        """
+        Extract potential stock tickers from the given text.
+
+        Heuristics:
+        1. Detect typical market notations like $TSLA, (TSLA), NASDAQ:TSLA, NYSE:TSLA.
+        2. Capture standalone upper-case tokens 2-5 characters long.
+        3. Filter out common English stop-words to minimise false positives.
+        """
+        # Strict patterns to avoid false positives: require a financial marker
+        pattern = re.compile(r"(?:\$|\bNASDAQ:|\bNYSE:)(?P<tkr>[A-Z]{2,5})\b")
+        candidates = {m.group("tkr") for m in pattern.finditer(text)}
+
+        # Remove obvious stop words / non-ticker tokens.
+        stopwords = {
+            "THE",
+            "AND",
+            "FOR",
+            "WITH",
+            "THIS",
+            "THAT",
+            "FROM",
+            "WILL",
+            "WHAT",
+            "WHEN",
+            "WHERE",
+            "WHICH",
+            "MORE",
+            "NEWS",
+        }
+        tickers = {tkr for tkr in candidates if tkr not in stopwords}
+
+        # 2) Company‐name lookup fallback
+        company_map = {
+            # expand as needed – avoid overly generic terms like "google"
+            "tesla": "TSLA",
+            "microsoft": "MSFT",
+            "apple": "AAPL",
+            "amazon": "AMZN",
+            "alphabet": "GOOGL",
+            "meta": "META",
+            "facebook": "META",
+            "nvidia": "NVDA",
+            "netflix": "NFLX",
+        }
+
+        # Strip URLs to avoid picking up company names inside link domains (e.g. news.google.com)
+        url_stripped = re.sub(r"https?://\S+", " ", text, flags=re.IGNORECASE).lower()
+
+        for name, tkr in company_map.items():
+            if re.search(rf"\b{re.escape(name)}\b", url_stripped):
+                tickers.add(tkr)
+
+        return sorted(tickers)
     
     def calculate_impact_score(self, sentiment_score: float, tickers: List[str]) -> float:
         """Calculate basic impact score"""

@@ -26,10 +26,8 @@ scanBtn.addEventListener("click", async () => {
           <div class="details" id="details-${idx}" style="display:none; margin-top:0.5rem;">
             <p><strong>Brief:</strong> ${item.brief}</p>
             <p><strong>Why it matters:</strong> ${item.why_matters}</p>
-            <p><strong>Tickers:</strong> ${item.tickers.join(', ') || 'None'}</p>
-            <p><strong>Prediction:</strong> ${Object.entries(item.prediction)
-              .map(([t, p]) => `${t}: ${p}`)
-              .join(', ') || 'N/A'}</p>
+            <p><strong>Tickers:</strong> ${item.tickers.length ? item.tickers.join(', ') : '<em>None</em>'}</p>
+            <p><strong>Prediction:</strong> ${Object.keys(item.prediction).length ? Object.entries(item.prediction).map(([t, p]) => `${t}: ${p}`).join(', ') : '<em>N/A</em>'}</p>
           </div>
         </div>`
       )
